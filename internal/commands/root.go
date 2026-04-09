@@ -15,11 +15,12 @@ Quiet  bool
 
 var rootFlags GlobalFlags
 
-func NewRootCmd() *cobra.Command {
+func NewRootCmd(version string) *cobra.Command {
 root := &cobra.Command{
 Use:          "hush",
 Short:        "An AI-native secrets manager",
 Long:         `hush stores secrets encrypted at rest and injects them into subprocesses.`,
+Version:      version,
 SilenceUsage: true,
 }
 root.PersistentFlags().BoolVarP(&rootFlags.Global, "global", "g", false, "use global vault (~/.hush/)")

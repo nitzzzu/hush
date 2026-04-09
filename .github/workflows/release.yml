@@ -1,0 +1,51 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  release:
+    name: Build and release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Extract version
+        id: meta
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/}"
+          else
+            VERSION="dev-${GITHUB_SHA::8}"
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Build
+        run: |
+          VERSION="${{ steps.meta.outputs.version }}"
+          LDFLAGS="-s -w -X main.version=${VERSION}"
+
+          GOOS=linux   GOARCH=amd64 go build -ldflags="${LDFLAGS}" -o dist/hush-linux-amd64   ./cmd/hush/
+          GOOS=linux   GOARCH=arm64 go build -ldflags="${LDFLAGS}" -o dist/hush-linux-arm64   ./cmd/hush/
+          GOOS=windows GOARCH=amd64 go build -ldflags="${LDFLAGS}" -o dist/hush-windows-amd64.exe ./cmd/hush/
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          name: ${{ steps.meta.outputs.version }}
+          generate_release_notes: true
+          files: |
+            dist/hush-linux-amd64
+            dist/hush-linux-arm64
+            dist/hush-windows-amd64.exe
