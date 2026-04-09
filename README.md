@@ -7,7 +7,7 @@
 ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝
 ```
 
-> Keep your secrets secret. Even from AI agents.
+> Your secrets deserve silence
 
 **hush** is a CLI secrets manager for AI-assisted workflows. It encrypts secrets at rest with AES-256-GCM, stores the encryption key in your OS keychain, and injects secrets into subprocesses at runtime, so AI agents can use your credentials without seeing their values.
 
